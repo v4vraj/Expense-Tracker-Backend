@@ -2,15 +2,20 @@
 const mongoose = require("mongoose");
 
 const incomeSchema = new mongoose.Schema({
+  userId: {
+    type: String,
+    required: true,
+  },
   description: {
     type: String,
     required: true,
+    trim: true,
   },
   amount: {
     type: Number,
     required: true,
+    trim: true,
   },
-  // You can add more fields if needed
 });
 
 const Income = mongoose.model("Income", incomeSchema);

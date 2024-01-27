@@ -3,15 +3,16 @@ const Income = require("./model/income.model");
 
 const addIncome = async (req, res) => {
   try {
-    const { description, amount } = req.body;
+    const { userId, description, amount } = req.body;
 
-    if (!description || !amount) {
+    if (!userId || !description || !amount) {
       return res
         .status(400)
-        .json({ error: "Description and amount are required." });
+        .json({ error: "userId, Description and amount are required." });
     }
 
     const newIncome = new Income({
+      userId,
       description,
       amount,
     });
@@ -27,7 +28,8 @@ const addIncome = async (req, res) => {
 
 const getIncomes = async (req, res) => {
   try {
-    const incomes = await Income.find();
+    const userId = req.query.userId; // Change from req.body to req.query
+    const incomes = await Income.find({ userId });
     res.status(200).json(incomes);
   } catch (error) {
     console.error("Error fetching Incomes", error);
@@ -36,3 +38,4 @@ const getIncomes = async (req, res) => {
 };
 
 module.exports = { addIncome, getIncomes };
+``;

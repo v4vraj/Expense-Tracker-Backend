@@ -1,14 +1,17 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("./model/user.model");
+const uuid = require("uuid");
 
 const userController = {
   addUser: async (req, res) => {
     try {
       const { firstName, lastName, email, password } = req.body;
       const saltRounds = 10;
+      const userId = uuid.v4();
       const hashedPassword = await bcrypt.hash(password, saltRounds);
       const newUser = new User({
+        userId,
         firstName,
         lastName,
         email,
@@ -41,7 +44,7 @@ const userController = {
         expiresIn: "1h",
       });
 
-      return res.json({ token });
+      return res.json({ token, UserId: user.userId });
     } catch (error) {
       console.error("Error", error);
       res.status(500).json({ error: "Internal Server Error" });
