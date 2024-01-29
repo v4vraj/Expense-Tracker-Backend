@@ -37,5 +37,37 @@ const getIncomes = async (req, res) => {
   }
 };
 
-module.exports = { addIncome, getIncomes };
-``;
+const updateIncome = async (req, res) => {
+  try {
+    const incomeId = req.params.incomeId;
+    const { description, amount } = req.body;
+    if (!description || !amount) {
+      return res
+        .status(400)
+        .json({ error: "Description and amount are required." });
+    }
+
+    const updateIncome = await Income.findByIdAndUpdate(
+      incomeId,
+      { description, amount },
+      { new: true }
+    );
+    res
+      .status(200)
+      .json({ message: "Income updated successfully", updateIncome });
+  } catch (error) {
+    console.error("Error updating Income", error);
+  }
+};
+
+const deleteIncome = async (req, res) => {
+  try {
+    const incomeId = req.params.incomeId;
+    await Income.findByIdAndDelete(incomeId);
+    res.status(200).json({ message: "Income deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting Income", error);
+  }
+};
+
+module.exports = { addIncome, getIncomes, updateIncome, deleteIncome };

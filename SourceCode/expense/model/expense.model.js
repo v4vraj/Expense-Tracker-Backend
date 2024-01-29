@@ -13,6 +13,10 @@ const expenseSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  status: {
+    type: Boolean,
+    required: true,
+  },
 });
 
 const Expense = mongoose.model("Expense", expenseSchema);
