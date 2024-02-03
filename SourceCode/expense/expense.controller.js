@@ -1,13 +1,16 @@
+// expense.controller.js
 const Expense = require("./model/expense.model");
 
 const addExpenses = async (req, res) => {
   try {
-    const { userId, description, amount } = req.body;
+    const { userId, description, amount, status } = req.body;
 
     const newExpense = new Expense({
       userId,
       description,
       amount,
+      status,
+      timestamp: new Date(),
     });
 
     await newExpense.save();
@@ -45,7 +48,7 @@ const deleteExpense = async (req, res) => {
 const updateExpense = async (req, res) => {
   try {
     const expenseId = req.params.expenseId;
-    const { description, amount } = req.body;
+    const { description, amount, status } = req.body;
 
     if (!description || !amount) {
       return res
@@ -55,7 +58,7 @@ const updateExpense = async (req, res) => {
 
     const updatedExpense = await Expense.findByIdAndUpdate(
       expenseId,
-      { description, amount },
+      { description, amount, status },
       { new: true }
     );
 

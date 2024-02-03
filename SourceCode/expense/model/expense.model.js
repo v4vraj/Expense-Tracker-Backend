@@ -1,20 +1,12 @@
 const mongoose = require("mongoose");
 
 const expenseSchema = new mongoose.Schema({
-  userId: {
-    type: String,
-    required: true,
-  },
-  description: {
-    type: String,
-    required: true,
-  },
-  amount: {
-    type: Number,
-    required: true,
-  },
+  userId: String,
+  description: String,
+  amount: Number,
+  status: Boolean, // If needed, you can keep the status field
+  timestamp: { type: Date, default: Date.now },
 });
-
 const Expense = mongoose.model("Expense", expenseSchema);
 
 module.exports = Expense;

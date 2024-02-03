@@ -2,20 +2,11 @@
 const mongoose = require("mongoose");
 
 const incomeSchema = new mongoose.Schema({
-  userId: {
-    type: String,
-    required: true,
-  },
-  description: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  amount: {
-    type: Number,
-    required: true,
-    trim: true,
-  },
+  userId: String,
+  description: String,
+  amount: Number,
+  status: Boolean, // If needed, you can keep the status field
+  timestamp: { type: Date, default: Date.now },
 });
 
 const Income = mongoose.model("Income", incomeSchema);

@@ -3,18 +3,14 @@ const Income = require("./model/income.model");
 
 const addIncome = async (req, res) => {
   try {
-    const { userId, description, amount } = req.body;
-
-    if (!userId || !description || !amount) {
-      return res
-        .status(400)
-        .json({ error: "userId, Description and amount are required." });
-    }
+    const { userId, description, amount, status } = req.body;
 
     const newIncome = new Income({
       userId,
       description,
       amount,
+      status,
+      timestamp: new Date(),
     });
 
     await newIncome.save();
@@ -40,7 +36,7 @@ const getIncomes = async (req, res) => {
 const updateIncome = async (req, res) => {
   try {
     const incomeId = req.params.incomeId;
-    const { description, amount } = req.body;
+    const { description, amount, status } = req.body;
     if (!description || !amount) {
       return res
         .status(400)
@@ -49,7 +45,7 @@ const updateIncome = async (req, res) => {
 
     const updateIncome = await Income.findByIdAndUpdate(
       incomeId,
-      { description, amount },
+      { description, amount, status },
       { new: true }
     );
     res
@@ -62,7 +58,7 @@ const updateIncome = async (req, res) => {
 
 const deleteIncome = async (req, res) => {
   try {
-    const incomeId = req.params.incomeId;
+    const incomeId = req.params.id;
     await Income.findByIdAndDelete(incomeId);
     res.status(200).json({ message: "Income deleted successfully" });
   } catch (error) {
