@@ -44,7 +44,7 @@ const userController = {
         expiresIn: "1h",
       });
 
-      return res.json({ token, UserId: user.userId });
+      return res.json({ token, user });
     } catch (error) {
       console.error("Error", error);
       res.status(500).json({ error: "Internal Server Error" });

@@ -37,6 +37,8 @@ const updateIncome = async (req, res) => {
   try {
     const incomeId = req.params.incomeId;
     const { description, amount, status } = req.body;
+
+    console.log(incomeId);
     if (!description || !amount) {
       return res
         .status(400)
@@ -48,11 +50,13 @@ const updateIncome = async (req, res) => {
       { description, amount, status },
       { new: true }
     );
+
     res
       .status(200)
-      .json({ message: "Income updated successfully", updateIncome });
+      .json({ message: "Expense updated successfully", updateIncome });
   } catch (error) {
-    console.error("Error updating Income", error);
+    console.error("Error updating Expense", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 

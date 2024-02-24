@@ -4,6 +4,8 @@ const db = require("./db");
 const expenseRoutes = require("./SourceCode/expense/expense.route");
 const userRoutes = require("./SourceCode/User/user.route");
 const incomeRoutes = require("./SourceCode/income/income.route");
+const weeklyExpenseRoutes = require("./SourceCode/weeklyBudget/weeklyBudget.route");
+const monthlyBudgetRoutes = require("./SourceCode/monthlyBudget/monthlyBudget.route");
 
 const app = express();
 const port = 3000;
@@ -14,6 +16,8 @@ app.use(express.json());
 app.use("/api/user", userRoutes);
 app.use("/api/expenses", expenseRoutes);
 app.use("/api/incomes", incomeRoutes);
+app.use("/api/weeklyBudget", weeklyExpenseRoutes);
+app.use("/api/monthlyBudget", monthlyBudgetRoutes);
 
 app.listen(port, () => {
   console.log(`Server is running on Port ${port}`);
