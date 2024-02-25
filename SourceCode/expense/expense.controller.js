@@ -5,14 +5,14 @@ const nodemailer = require("nodemailer");
 
 const addExpenses = async (req, res) => {
   try {
-    const { userId, description, amount, status } = req.body;
-
+    const { userId, description, amount, status, timestamp } = req.body;
+    console.log(timestamp);
     const newExpense = new Expense({
       userId,
       description,
       amount,
       status,
-      timestamp: new Date(),
+      timestamp,
     });
 
     await newExpense.save();
@@ -27,7 +27,29 @@ const addExpenses = async (req, res) => {
 const getExpenses = async (req, res) => {
   try {
     const userId = req.query.userId;
-    const expenses = await Expense.find({ userId });
+    const filters = { userId };
+
+    // Check if date range filter is provided
+    if (req.query.startDate && req.query.endDate) {
+      const startOfDay = new Date(req.query.startDate);
+      const endOfDay = new Date(req.query.endDate);
+
+      // Ensure the start time is set to the beginning of the day
+      startOfDay.setUTCHours(0, 0, 0, 0);
+
+      // Ensure the end time is set to the end of the day
+      endOfDay.setUTCHours(23, 59, 59, 999);
+
+      filters.timestamp = {
+        $gte: startOfDay.toISOString(),
+        $lte: endOfDay.toISOString(),
+      };
+    }
+
+    // console.log("filters", filters);
+
+    const expenses = await Expense.find(filters);
+    // Send expenses back to the client
     res.status(200).json(expenses);
   } catch (error) {
     console.error("Error fetching Expenses", error);

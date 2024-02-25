@@ -3,14 +3,14 @@ const Income = require("./model/income.model");
 
 const addIncome = async (req, res) => {
   try {
-    const { userId, description, amount, status } = req.body;
+    const { userId, description, amount, status, timestamp } = req.body;
 
     const newIncome = new Income({
       userId,
       description,
       amount,
       status,
-      timestamp: new Date(),
+      timestamp,
     });
 
     await newIncome.save();
@@ -24,8 +24,31 @@ const addIncome = async (req, res) => {
 
 const getIncomes = async (req, res) => {
   try {
-    const userId = req.query.userId; // Change from req.body to req.query
-    const incomes = await Income.find({ userId });
+    const userId = req.query.userId;
+    const filters = { userId };
+    console.log(req.query);
+    // Check if date range filter is provided
+    if (req.query.startDate && req.query.endDate) {
+      const startOfDay = new Date(req.query.startDate);
+      const endOfDay = new Date(req.query.endDate);
+
+      // Ensure the start time is set to the beginning of the day
+      startOfDay.setUTCHours(0, 0, 0, 0);
+
+      // Ensure the end time is set to the end of the day
+      endOfDay.setUTCHours(23, 59, 59, 999);
+
+      filters.timestamp = {
+        $gte: startOfDay.toISOString(),
+        $lte: endOfDay.toISOString(),
+      };
+    }
+
+    // console.log("filters", filters);
+
+    const incomes = await Income.find(filters);
+    // console.log(incomes);
+    // Send incomes back to the client
     res.status(200).json(incomes);
   } catch (error) {
     console.error("Error fetching Incomes", error);
