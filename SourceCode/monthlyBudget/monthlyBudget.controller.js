@@ -3,15 +3,16 @@ const MonthlyBudget = require("./model/monthlyBudget.model");
 
 const addMonthlyBudget = async (req, res) => {
   try {
-    const { month, year, budgetAmount, expenses } = req.body;
+    const { userId, month, year, budgetAmount, expenses } = req.body;
 
     const newMonthlyBudget = new MonthlyBudget({
+      userId,
       month,
       year,
       budgetAmount,
       expenses,
     });
-    console.log(newMonthlyBudget);
+
     await newMonthlyBudget.save();
 
     res.status(200).json({ message: "MonthlyBudget added successfully" });
@@ -23,7 +24,8 @@ const addMonthlyBudget = async (req, res) => {
 
 const getMonthlyBudgets = async (req, res) => {
   try {
-    const monthlyBudgets = await MonthlyBudget.find();
+    const userId = req.query.userId;
+    const monthlyBudgets = await MonthlyBudget.find({ userId: userId });
     res.status(200).json(monthlyBudgets);
   } catch (error) {
     console.error("Error fetching MonthlyBudgets", error);

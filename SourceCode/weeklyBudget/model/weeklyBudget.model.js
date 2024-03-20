@@ -12,6 +12,7 @@ const expenseSchema = new mongoose.Schema({
 });
 
 const weeklyBudgetSchema = new mongoose.Schema({
+  userId: String,
   startDate: {
     type: Date,
     required: true,

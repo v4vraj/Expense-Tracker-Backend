@@ -3,6 +3,7 @@ const WeeklyBudget = require("./model/weeklyBudget.model");
 const addWeeklyBudget = async (req, res) => {
   try {
     const {
+      userId,
       startDate,
       endDate,
       monthForWeek,
@@ -12,6 +13,7 @@ const addWeeklyBudget = async (req, res) => {
     } = req.body;
 
     const newWeeklyBudget = new WeeklyBudget({
+      userId,
       startDate,
       endDate,
       monthForWeek,
@@ -31,7 +33,8 @@ const addWeeklyBudget = async (req, res) => {
 
 const getWeeklyBudgets = async (req, res) => {
   try {
-    const weeklyBudgets = await WeeklyBudget.find();
+    const userId = req.query.userId;
+    const weeklyBudgets = await WeeklyBudget.find({ userId: userId });
     res.status(200).json(weeklyBudgets);
   } catch (error) {
     console.error("Error fetching WeeklyBudgets", error);

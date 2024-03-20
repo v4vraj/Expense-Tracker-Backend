@@ -26,7 +26,6 @@ const getIncomes = async (req, res) => {
   try {
     const userId = req.query.userId;
     const filters = { userId };
-    console.log(req.query);
     // Check if date range filter is provided
     if (req.query.startDate && req.query.endDate) {
       const startOfDay = new Date(req.query.startDate);
@@ -44,10 +43,8 @@ const getIncomes = async (req, res) => {
       };
     }
 
-    // console.log("filters", filters);
-
     const incomes = await Income.find(filters);
-    // console.log(incomes);
+
     // Send incomes back to the client
     res.status(200).json(incomes);
   } catch (error) {
@@ -61,7 +58,6 @@ const updateIncome = async (req, res) => {
     const incomeId = req.params.incomeId;
     const { description, amount, status } = req.body;
 
-    console.log(incomeId);
     if (!description || !amount) {
       return res
         .status(400)

@@ -21,6 +21,7 @@ const expenseSchema = new mongoose.Schema({
 });
 
 const monthlyBudgetSchema = new mongoose.Schema({
+  userId: String,
   month: {
     type: String,
     required: true,
