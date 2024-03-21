@@ -78,29 +78,63 @@ const fetchUserBalances = async (req, res) => {
   try {
     const { groupId } = req.params;
     const groupIdObject = new ObjectId(groupId);
-    console.log(groupIdObject);
+    const { userEmail } = req.query; // Assuming the logged-in user's email is available in req.user.email
 
+    // Aggregate transactions to get source balances (owed)
     const sourceBalances = await GroupTransaction.aggregate([
       { $match: { group: groupIdObject } },
       { $unwind: "$transactions" },
-      { $group: { _id: "$source", debit: { $sum: "$transactions.amount" } } },
+      { $group: { _id: "$source", owed: { $sum: "$transactions.amount" } } },
     ]);
 
+    // Aggregate transactions to get destination balances (owes)
     const destinationBalances = await GroupTransaction.aggregate([
       { $match: { group: groupIdObject } },
       { $unwind: "$transactions" },
       {
         $group: {
           _id: "$destination",
-          credit: { $sum: "$transactions.amount" },
+          owes: { $sum: "$transactions.amount" },
         },
       },
     ]);
+    console.log(
+      "sourceBalances",
+      sourceBalances,
+      "destinationBalances",
+      destinationBalances
+    );
 
+    // Merge source (owed) and destination (owes) balances
     const mergedBalances = mergeBalances(sourceBalances, destinationBalances);
-    console.log(mergedBalances);
+    console.log("Merged balances:", mergedBalances);
 
-    res.status(200).json({ balances: mergedBalances });
+    // Find the logged-in user's balance and owed/owes amounts
+    let userTotalBalance = 0;
+    const userOwes = [];
+    const userOwedFrom = [];
+
+    mergedBalances.forEach(({ user, balance }) => {
+      console.log("User:", user, "Balance:", balance);
+      if (user === userEmail) {
+        userTotalBalance = balance;
+      } else if (balance > 0) {
+        userOwes.push({ user, amount: balance });
+      } else if (balance < 0) {
+        userOwedFrom.push({ user, amount: -balance });
+      }
+    });
+
+    console.log("User total balance:", userTotalBalance);
+    console.log("User owes:", userOwes);
+    console.log("User owed from:", userOwedFrom);
+
+    // Send the total balance, owed amounts, and amounts owed as a JSON response
+    res.status(200).json({
+      totalBalance: userTotalBalance,
+      owes: userOwes,
+      owedFrom: userOwedFrom,
+    });
   } catch (error) {
     console.error("Error fetching user balances:", error);
     res.status(500).json({ error: "Error fetching user balances" });
@@ -110,12 +144,14 @@ const fetchUserBalances = async (req, res) => {
 const mergeBalances = (sourceBalances, destinationBalances) => {
   const mergedBalances = new Map();
 
-  sourceBalances.forEach(({ _id: user, debit }) => {
-    mergedBalances.set(user, (mergedBalances.get(user) || 0) - debit);
+  // Process source balances (owed)
+  sourceBalances.forEach(({ _id: user, owed }) => {
+    mergedBalances.set(user, (mergedBalances.get(user) || 0) - owed);
   });
 
-  destinationBalances.forEach(({ _id: user, credit }) => {
-    mergedBalances.set(user, (mergedBalances.get(user) || 0) + credit);
+  // Process destination balances (owes)
+  destinationBalances.forEach(({ _id: user, owes }) => {
+    mergedBalances.set(user, (mergedBalances.get(user) || 0) + owes);
   });
 
   return [...mergedBalances].map(([user, balance]) => ({ user, balance }));
