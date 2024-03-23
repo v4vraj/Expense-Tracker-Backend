@@ -1,4 +1,3 @@
-// routes/income.routes.js
 const express = require("express");
 const router = express.Router();
 const incomeController = require("./income.controller");

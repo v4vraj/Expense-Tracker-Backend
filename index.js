@@ -1,5 +1,3 @@
-// index.js or your server setup file
-
 const express = require("express");
 const cors = require("cors");
 const http = require("http");
@@ -28,11 +26,9 @@ const io = socketIO(server, {
 app.use(cors());
 app.use(express.json());
 
-// Set the io instance in the controller
 const groupController = require("./SourceCode/Group/group.controller");
 groupController.setIO(io);
 
-// Define your routes
 app.use("/api/user", userRoutes);
 app.use("/api/expenses", expenseRoutes);
 app.use("/api/incomes", incomeRoutes);

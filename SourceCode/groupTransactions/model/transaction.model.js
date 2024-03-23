@@ -7,11 +7,11 @@ const groupTransactionSchema = new mongoose.Schema({
     required: true,
   },
   source: {
-    type: String, // Change type to String for email
+    type: String,
     required: true,
   },
   destination: {
-    type: String, // Change type to String for email
+    type: String,
     required: true,
   },
   startTime: {

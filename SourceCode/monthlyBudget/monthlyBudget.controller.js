@@ -1,4 +1,3 @@
-// controllers/monthlyBudget.controller.js
 const MonthlyBudget = require("./model/monthlyBudget.model");
 
 const addMonthlyBudget = async (req, res) => {

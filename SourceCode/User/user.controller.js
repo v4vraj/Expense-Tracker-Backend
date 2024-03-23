@@ -50,8 +50,6 @@ const userController = {
       res.status(500).json({ error: "Internal Server Error" });
     }
   },
-
-  // Add other controllers as needed
 };
 
 module.exports = userController;

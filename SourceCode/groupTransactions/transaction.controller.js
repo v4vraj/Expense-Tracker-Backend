@@ -32,20 +32,20 @@ const createTransactions = async (req, res) => {
       // Check if there's an existing transaction document between the same source and destination within the group
       let groupTransaction = await GroupTransaction.findOne({
         group,
-        source: payerEmail, // Use email directly
-        destination: paidBy, // Use email directly
+        source: payerEmail,
+        destination: paidBy,
       });
 
       if (!groupTransaction) {
         // If no existing transaction document found, create a new one
         groupTransaction = new GroupTransaction({
           group,
-          source: payerEmail, // Use email directly
-          destination: paidBy, // Use email directly
+          source: payerEmail,
+          destination: paidBy,
           startTime: currentTime,
           endTime: currentTime,
           transactions: [],
-          totalAmount: 0, // Initialize totalAmount to 0
+          totalAmount: 0,
         });
       }
 
@@ -64,8 +64,6 @@ const createTransactions = async (req, res) => {
 
       // Save or update the group transaction document in the database
       await groupTransaction.save();
-
-      console.log(`Transaction created successfully for payer: ${payerEmail}`);
     }
 
     res.status(201).json({ message: "Transactions created successfully." });
@@ -78,7 +76,7 @@ const fetchUserBalances = async (req, res) => {
   try {
     const { groupId } = req.params;
     const groupIdObject = new ObjectId(groupId);
-    const { userEmail } = req.query; // Assuming the logged-in user's email is available in req.user.email
+    const { userEmail } = req.query;
 
     // Aggregate transactions to get source balances (owed)
     const sourceBalances = await GroupTransaction.aggregate([
@@ -98,24 +96,15 @@ const fetchUserBalances = async (req, res) => {
         },
       },
     ]);
-    console.log(
-      "sourceBalances",
-      sourceBalances,
-      "destinationBalances",
-      destinationBalances
-    );
 
     // Merge source (owed) and destination (owes) balances
     const mergedBalances = mergeBalances(sourceBalances, destinationBalances);
-    console.log("Merged balances:", mergedBalances);
-
     // Find the logged-in user's balance and owed/owes amounts
     let userTotalBalance = 0;
     const userOwes = [];
     const userOwedFrom = [];
 
     mergedBalances.forEach(({ user, balance }) => {
-      console.log("User:", user, "Balance:", balance);
       if (user === userEmail) {
         userTotalBalance = balance;
       } else if (balance > 0) {
@@ -124,10 +113,6 @@ const fetchUserBalances = async (req, res) => {
         userOwedFrom.push({ user, amount: -balance });
       }
     });
-
-    console.log("User total balance:", userTotalBalance);
-    console.log("User owes:", userOwes);
-    console.log("User owed from:", userOwedFrom);
 
     // Send the total balance, owed amounts, and amounts owed as a JSON response
     res.status(200).json({
@@ -157,86 +142,36 @@ const mergeBalances = (sourceBalances, destinationBalances) => {
   return [...mergedBalances].map(([user, balance]) => ({ user, balance }));
 };
 
-// Get all group transactions
 const getAllGroupTransactions = async (req, res) => {
   try {
-    const groupTransactions = await GroupTransaction.find();
-    res.status(200).json(groupTransactions);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-};
+    const { groupId } = req.params;
 
-// Get a specific group transaction by ID
-const getGroupTransactionById = async (req, res) => {
-  try {
-    const groupTransaction = await GroupTransaction.findById(req.params.id);
+    // Fetch all transactions with the given groupId
+    const transactions = await GroupTransaction.find({ group: groupId });
 
-    if (!groupTransaction) {
-      return res.status(404).json({ error: "Group Transaction not found" });
-    }
-
-    res.status(200).json(groupTransaction);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-};
-
-// Update a specific group transaction by ID
-const updateGroupTransactionById = async (req, res) => {
-  try {
-    const {
-      group,
-      source,
-      destination,
-      startTime,
-      endTime,
-      transactions,
-      totalAmount,
-    } = req.body;
-
-    const updatedGroupTransaction = await GroupTransaction.findByIdAndUpdate(
-      req.params.id,
-      {
-        group,
+    // Extract source, destination, and transactions from each document
+    const formattedTransactions = transactions.map((transaction) => {
+      const {
         source,
         destination,
-        startTime,
-        endTime,
-        transactions,
-        totalAmount,
-      },
-      { new: true }
-    );
-
-    if (!updatedGroupTransaction) {
-      return res.status(404).json({ error: "Group Transaction not found" });
-    }
-
-    res.status(200).json(updatedGroupTransaction);
+        transactions: transactionDetails,
+      } = transaction;
+      return {
+        source,
+        destination,
+        transactions: transactionDetails.map(
+          ({ timestamp, amount, description }) => ({
+            timestamp,
+            amount,
+            description,
+          })
+        ),
+      };
+    });
+    res.status(200).json(formattedTransactions);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-};
-
-// Delete a specific group transaction by ID
-const deleteGroupTransactionById = async (req, res) => {
-  try {
-    const deletedGroupTransaction = await GroupTransaction.findByIdAndDelete(
-      req.params.id
-    );
-
-    if (!deletedGroupTransaction) {
-      return res.status(404).json({ error: "Group Transaction not found" });
-    }
-
-    res.status(200).json(deletedGroupTransaction);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
+    console.error("Error fetching transactions:", error);
+    res.status(500).json({ error: "Error fetching transactions" });
   }
 };
 
@@ -244,7 +179,4 @@ module.exports = {
   createTransactions,
   fetchUserBalances,
   getAllGroupTransactions,
-  getGroupTransactionById,
-  updateGroupTransactionById,
-  deleteGroupTransactionById,
 };

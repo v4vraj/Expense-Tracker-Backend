@@ -1,4 +1,3 @@
-// controllers/income.controller.js
 const Income = require("./model/income.model");
 
 const addIncome = async (req, res) => {
@@ -26,15 +25,12 @@ const getIncomes = async (req, res) => {
   try {
     const userId = req.query.userId;
     const filters = { userId };
-    // Check if date range filter is provided
     if (req.query.startDate && req.query.endDate) {
       const startOfDay = new Date(req.query.startDate);
       const endOfDay = new Date(req.query.endDate);
 
-      // Ensure the start time is set to the beginning of the day
       startOfDay.setUTCHours(0, 0, 0, 0);
 
-      // Ensure the end time is set to the end of the day
       endOfDay.setUTCHours(23, 59, 59, 999);
 
       filters.timestamp = {
@@ -45,7 +41,6 @@ const getIncomes = async (req, res) => {
 
     const incomes = await Income.find(filters);
 
-    // Send incomes back to the client
     res.status(200).json(incomes);
   } catch (error) {
     console.error("Error fetching Incomes", error);
