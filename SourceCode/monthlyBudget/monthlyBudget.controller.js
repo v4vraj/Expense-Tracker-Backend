@@ -23,8 +23,13 @@ const addMonthlyBudget = async (req, res) => {
 
 const getMonthlyBudgets = async (req, res) => {
   try {
+    const month = req.query.currentMonthName;
     const userId = req.query.userId;
-    const monthlyBudgets = await MonthlyBudget.find({ userId: userId });
+    const monthlyBudgets = await MonthlyBudget.find({
+      userId: userId,
+      month: month,
+    });
+    console.log(monthlyBudgets);
     res.status(200).json(monthlyBudgets);
   } catch (error) {
     console.error("Error fetching MonthlyBudgets", error);
