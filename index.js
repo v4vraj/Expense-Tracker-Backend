@@ -10,6 +10,7 @@ const weeklyExpenseRoutes = require("./SourceCode/weeklyBudget/weeklyBudget.rout
 const monthlyBudgetRoutes = require("./SourceCode/monthlyBudget/monthlyBudget.route");
 const groupRoutes = require("./SourceCode/Group/group.route");
 const transactionRoutes = require("./SourceCode/groupTransactions/transcation.route");
+require("dotenv").config();
 
 const app = express();
 const port = process.env.PORT || 3000;
