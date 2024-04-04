@@ -12,7 +12,7 @@ const groupRoutes = require("./SourceCode/Group/group.route");
 const transactionRoutes = require("./SourceCode/groupTransactions/transcation.route");
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 const server = http.createServer(app);
 const io = socketIO(server, {
   cors: {
